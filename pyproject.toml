@@ -51,7 +51,7 @@ Issues = "https://github.com/fitzz-ftw/ftw-client/issues"
 Changelog = "https://github.com/fitzz-ftw/ftw-client/blob/main/CHANGELOG.md"
 
 [project.scripts]
-ftwchangelog = "ftwpki.client.git_shortcuts.programms:prog_ftwchangelog"
+ftwpkiclient = "ftwpki.client.programms:prog_client_csr"
 
 [project.optional-dependencies]
 doc = [
