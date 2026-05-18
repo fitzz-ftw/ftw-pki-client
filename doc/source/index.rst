@@ -7,9 +7,18 @@ Welcome to the documentation!
    :parser: myst_parser.sphinx_
 
 
-Documentation
----------------
 
+Documentation
+-------------
+
+
+
+.. toctree::
+   :maxdepth: 1
+   :caption: Quick Start Guide:
+
+   user/cli_user
+   devel/get_started_run_programms.ci
 
 
 .. toctree::

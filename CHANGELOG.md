@@ -7,15 +7,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.0.2a1] - 2026-05-18
 
-### Removed
-- **Breaking Change**: Remove the entire combined `programms.py` module and the legacy `prog_client_server_csr` executable entry point.
-- Delete obsolete developer guides and automated execution doctests (`get_started_programms.ci.rst`, `get_started_run_programms.ci.rst`).
-- Remove deprecated template artifacts (`MERGEMESSAGE.md`, `TAGMESSAGE.md`) from the repository root.
+### Added
+- Integrate local `LeafPKIConfig` to handle secure client-level configuration and dynamic path evaluations.
+- Replace the generic placeholder docstring for `prog_client_csr` with a comprehensive, Sphinx-compliant English specification.
+- Register `user/cli_user` directly within the main Sphinx documentation index tree (`index.rst`).
 
 ### Changed
-- Streamline the Sphinx documentation `index.rst` to remove all entry points tracking the discontinued combined workspace modules.
+- Shift internal keys location strategy: The internal private keys directory is now inferred dynamically via configuration paths instead of static command-line parameter overrides.
+- Enforce secure and explicit `.pem` file extensions (`.key.pem` and `config.ext_public`) for all generated client keypairs.
+- Clean up the doctest suites in `get_started_programms.ci.rst` to assert keypair generation against the new secure data and configuration storage locations.
+
+### Removed
+- **Breaking Change**: Drop direct `platformdirs` runtime dependency and its unused intersphinx mapping block from the Sphinx documentation setup (`conf.py`).
+- Clean up outdated and unused transport encryption `FIXME` architecture placeholders in client workflows.
 
 ---
 
 ## [0.0.1] - 2026-05-18
-- Initial commit and package skeleton for the client workspace.
+- Initial commit and package skeleton for the client workspace, following the structural split from the server modules.
