@@ -15,6 +15,7 @@ from pathlib import Path
 
 from cryptography import x509
 
+from ftwpki.baselibs.cert_request import CertificateRequest
 from ftwpki.baselibs.cli_parser import ServerClientCSRParser, ServerClientCSRProtocol
 from ftwpki.baselibs.core import (
     create_csr_name,
@@ -24,7 +25,6 @@ from ftwpki.baselibs.core import (
     save_pem,
 )
 from ftwpki.baselibs.policies import ServerPolicy
-from ftwpki.baselibs.request import CertificateRequest
 from ftwpki.baselibs.toml_utils import toml2dn
 
 
