@@ -17,6 +17,7 @@ Documentation
    :maxdepth: 1
    :caption: Quick Start Guide:
 
+   user/cli_user
    devel/get_started_run_programms.ci
 
 
