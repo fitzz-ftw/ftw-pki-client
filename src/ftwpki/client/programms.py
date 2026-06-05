@@ -42,11 +42,13 @@ def prog_client_csr(argv: list[str] | None = None,**kwargs) -> int:
         # SECTION - Configuration
         pre_parser = ServerClientCSRParser(add_help=False, allow_abbrev=False)
         pre_args, _ = pre_parser.parse_known_args(argv)
-        pki_name = Path(pre_args.conf_file).stem
-        pre_conf = toml2dn(Path(pre_args.conf_file).read_text())
-        pre_conf["pki_name"] = pki_name
+        pre_conf={}
+        if pre_args.conf_file:
+            pki_name = Path(pre_args.conf_file).stem
+            pre_conf = toml2dn(Path(pre_args.conf_file).read_text())
+            pre_conf["pki_name"] = pki_name
         ca_parser: ServerClientCSRParser = ServerClientCSRParser()
-        ca_parser.set_defaults(**pre_conf)
+        ca_parser.set_defaults(**pre_conf) if pre_conf else ...
         args: ServerClientCSRProtocol = ca_parser.parse_args(argv)
         config: BasePKIConfig = BasePKIConfig(args.conf_file)
         config.set_config("client")
@@ -106,14 +108,14 @@ if __name__ == "__main__":  # pragma: no cover
     be_verbose = False
     be_verbose = True
     option_flags = 0
-    # option_flags = FAIL_FAST
+    option_flags = FAIL_FAST
     test_sum = 0
     test_failed = 0
     passed_files = 0
     # Pfad zu den dokumentierenden Tests
     testfiles_dir = Path(__file__).parents[3] / "doc/source/devel"
     test_files = [
-        # "get_started_programms.ci.rst",
+        "get_started_programms.ci.rst",
         "get_started_run_programms.ci.rst",
     ]
     for file in test_files:
