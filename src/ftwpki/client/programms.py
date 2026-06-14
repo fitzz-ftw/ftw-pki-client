@@ -12,22 +12,11 @@ Modul programms documentation
 
 from pathlib import Path
 
-from cryptography import x509
-
-from ftwpki.baselibs.cert_request import CertificateRequest
-from ftwpki.baselibs.cli_parser import ServerClientCSRParser, ServerClientCSRProtocol
-from ftwpki.baselibs.configuration import BasePKIConfig, PKIPackage
-from ftwpki.baselibs.core import (
-    create_distinguished_name,
-    generate_rsa_key_pair,
-    load_private_key_from_pem,
-    save_pem,
-)
 from ftwpki.baselibs.policies import ClientPolicy
-from ftwpki.baselibs.toml_utils import toml2dn
+from ftwpki.baselibs.workflows import CSRWorkflow
 
 
-def prog_client_csr(argv: list[str] | None = None,**kwargs) -> int:
+def prog_client_csr(argv: list[str] | None = None, **kwargs) -> int:
     """
     Execute the client Certificate Signing Request (CSR) generation process.
 
@@ -40,67 +29,35 @@ def prog_client_csr(argv: list[str] | None = None,**kwargs) -> int:
     """
     try:
         # SECTION - Configuration
-        pre_parser = ServerClientCSRParser(add_help=False, allow_abbrev=False)
-        pre_args, _ = pre_parser.parse_known_args(argv)
-        pre_conf={}
-        if pre_args.conf_file:
-            pki_name = Path(pre_args.conf_file).stem
-            pre_conf = toml2dn(Path(pre_args.conf_file).read_text())
-            pre_conf["pki_name"] = pki_name
-        ca_parser: ServerClientCSRParser = ServerClientCSRParser()
-        ca_parser.set_defaults(**pre_conf) if pre_conf else ...
-        args: ServerClientCSRProtocol = ca_parser.parse_args(argv)
-        config: BasePKIConfig = BasePKIConfig(args.conf_file)
-        config.set_config("client")
+        csr_creator = CSRWorkflow()
+        csr_creator.policy = ClientPolicy()
+        csr_creator.mandantory_san = True
+        csr_creator.configuration(argv)
         # !SECTION - Configuration
         # SECTION - CSR Creation
-        subject: x509.Name = create_distinguished_name(
-            country=args.countryName,
-            state=args.stateOrProvinceName,
-            location=args.localityName,
-            organization=args.organizationName,
-            common_name=args.commonName,
-            organizational_unit=args.organizationalUnitName,
-        )
-        client_csr: CertificateRequest = CertificateRequest(
-            subject=subject,
-            policy=ClientPolicy(),
-        )
-
+        csr_creator.csr_creation()
         # !SECTION - CSR Creation
         # SECTION - Keypair Creation
-        priv, pub = generate_rsa_key_pair(passphrase=args.password, key_size=4096) 
+        csr_creator.key_pair_creation()
         # !SECTION - Keypair Creation
-
-        # SECTION - Save Keys and CSR
-        save_pem(priv, config.private_keys / args.private_key, is_private=True)
+        # SECTION - Save private Key
+        csr_creator.save_keys()
         # !SECTION - Save private Key
+
         # SECTION - Save CSR
-        san_args={"ip_addresses": args.ip_addresses, 
-                  "dns_names": args.host_names}
-        client_pem = client_csr.build(load_private_key_from_pem(
-               pem_data=priv, 
-               passphrase= args.password
-            ),**san_args).get_pem()
-        save_pem(
-            client_pem,
-            Path(f"{args.pki_name + '.csr'}"),
-            is_private=False,
-        )
+        csr_creator.save_csr()
         # !SECTION - Save CSR
         # SECTION - pki- Container
-        pki_pack = PKIPackage()
-        conf_file = Path(args.conf_file)
-        pki_pack.additional_files[f"{args.pki_name}.id.toml"]=conf_file.read_bytes()
-        pki_pack.save(config.pki_path/ args.pki_name)
+        csr_creator.process_pki_container()
         # !SECTION - pki- Container
         # SECTION - Cleanup
-        conf_file.unlink()
+        csr_creator.cleanup()
         # !SECTION - Cleanup
         return 0
     except Exception as e:
         print(f"Error: {e}")
         return 1
+
 
 if __name__ == "__main__":  # pragma: no cover
     from doctest import FAIL_FAST, testfile
